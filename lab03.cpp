@@ -1,15 +1,32 @@
 #include "lab03.h"
-#include <vector>
 
-using namespace std;
+const char* file_out = "out.txt";
 
 
 void disassembler (Section_header text, FILE* file) {
 
   fseek (file, text.sh_offset, SEEK_SET);
-  for (int i = 0; i < text.sh_size; i++) {
+
+  uint32_t addr = text.sh_addr;
+
+  for (int i = 0; i < text.sh_size / 4; i++) {
+    
+    cout << addr << ":    ";
+    addr += 4;
+    
     uint32_t str;
     fread (&str, sizeof(str), 1, file);
+
+    uint32_t opcode = str % (1 << 7);
+
+    
+
+    if (opcode == 51) {
+      R_type type;
+      type.parse(str);
+      type.print();
+    }
+    cout << '\n';
   }
 }
 
@@ -36,7 +53,14 @@ void read_elf_file (const char* elf_file) {
     fseek (file, section_headers[header.e_shstrndx].sh_offset + section_headers[i].sh_name, SEEK_SET);
     fscanf(file, "%s", name);
 
-    if (name == ".text") disassembler(section_headers[i], file);
+    auto eq = [] (char *s1, char *s2) {
+      char *symbol1 = s1;
+      char *symbol2 = s2;
+      while (*symbol1 && *symbol1 == *symbol2) symbol1++, symbol2++;
+      return *symbol1 == *symbol2;
+    };
+
+    if (eq(name, ".text")) disassembler(section_headers[i], file);
   }
 
   fclose(file);
