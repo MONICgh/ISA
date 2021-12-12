@@ -3,8 +3,6 @@
 #define OUT(type, str) type.parse(str);\
                         type.print()
 
-//const char* file_out = "out.txt";
-
 
 void disassembler (Section_header text, FILE* file) {
 
@@ -12,8 +10,11 @@ void disassembler (Section_header text, FILE* file) {
 
   uint32_t addr = text.sh_addr;
 
+  freopen (file_out_name, "w", stdout);
+
   for (int i = 0; i < text.sh_size / 4; i++) {
-    
+  
+
     cout << hex << setfill('0') << setw (8) << addr << ":    " << dec;
     addr += 4;
     
@@ -49,9 +50,9 @@ void disassembler (Section_header text, FILE* file) {
   }
 }
 
-void read_elf_file (const char* elf_file) {
+void read_elf_file () {
 
-  FILE* file = fopen("test_elf", "rb");
+  FILE* file = fopen(file_in_name, "rb");
   
   Elf32_Ehdr header;
   fread (&header, sizeof(header), 1, file);
@@ -87,7 +88,7 @@ void read_elf_file (const char* elf_file) {
 
 int main () {
 
-    read_elf_file ("test_elf");
+    read_elf_file ();
 
     return 0;
 }

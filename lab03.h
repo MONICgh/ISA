@@ -5,6 +5,15 @@
 
 using namespace std;
 
+const uint32_t OPCODE = 7;
+const uint32_t RD = 5;
+const uint32_t FUNCT3 = 3;
+const uint32_t RS = 5;
+const uint32_t FUNCT7 = 7;
+
+const char* file_in_name = "test_elf";
+const char* file_out_name = "out.txt";
+
 typedef struct {
     unsigned char   e_ident[16];
     uint16_t        e_type;
@@ -22,7 +31,6 @@ typedef struct {
     uint16_t        e_shstrndx;
 } Elf32_Ehdr;
 
-
 typedef struct { 
     uint16_t        sh_name;
     uint32_t        sh_type;
@@ -35,12 +43,6 @@ typedef struct {
     uint32_t        sh_addralign;
     uint32_t        sh_entsize;
 } Section_header;
-
-const uint32_t OPCODE = 7;
-const uint32_t RD = 5;
-const uint32_t FUNCT3 = 3;
-const uint32_t RS = 5;
-const uint32_t FUNCT7 = 7;
 
 struct R_type {
 
