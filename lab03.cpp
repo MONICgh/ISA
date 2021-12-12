@@ -1,6 +1,9 @@
 #include "lab03.h"
 
-const char* file_out = "out.txt";
+#define OUT(type, str) type.parse(str);\
+                        type.print()
+
+//const char* file_out = "out.txt";
 
 
 void disassembler (Section_header text, FILE* file) {
@@ -11,7 +14,7 @@ void disassembler (Section_header text, FILE* file) {
 
   for (int i = 0; i < text.sh_size / 4; i++) {
     
-    cout << addr << ":    ";
+    cout << hex << setfill('0') << setw (8) << addr << ":    " << dec;
     addr += 4;
     
     uint32_t str;
@@ -19,14 +22,30 @@ void disassembler (Section_header text, FILE* file) {
 
     uint32_t opcode = str % (1 << 7);
 
-    
-
     if (opcode == 51) {
       R_type type;
-      type.parse(str);
-      type.print();
+      OUT(type, str);
     }
-    cout << '\n';
+    else if (opcode == 3 || opcode == 19 || opcode == 103) {
+      I_type type;
+      OUT(type, str);
+    }
+    else if (opcode == 35) {
+      S_type type;
+      OUT(type, str);
+    }
+    else if (opcode == 99) {
+      B_type type;
+      OUT(type, str);
+    }
+    else if (opcode == 23 || opcode == 55 || opcode == 15 || opcode == 115) {
+      U_type type;
+      OUT(type, str);
+    }
+    else if (opcode == 111) {
+      J_type type;
+      OUT (type, str);
+    }
   }
 }
 
