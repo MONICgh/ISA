@@ -3,7 +3,6 @@
 #define OUT(type, str) type.parse(str);\
                         type.print()
 
-
 void read_tags (Section_header tags, FILE* file, vector <Elf32_Sym> &symtab) {
 
   fseek (file, tags.sh_offset, SEEK_SET);
@@ -17,7 +16,29 @@ void read_tags (Section_header tags, FILE* file, vector <Elf32_Sym> &symtab) {
   }
 }
 
-void disassembler (Section_header text, FILE* file, vector <Elf32_Sym> &symtab, uint32_t addr_name) {
+void write_symtab (vector <Elf32_Sym> &symtab, FILE* file) {
+  
+  cout << '\n';
+
+  printf ("%s %-15s %7s %-8s %-8s %-8s %6s %s\n", 
+    "Symbol", "Value", "Size", "Type", "Bind", "Vis", "Index", "Name");
+
+  for (int i = 0; i < symtab.size(); i++) {
+
+    Elf32_Sym tag = symtab[i];
+
+    char name[512];
+    fseek (file, address_name + tag.st_name, SEEK_SET);
+    fscanf(file, "%s", name);  
+
+    printf ("[%4i] 0x%-15X %5i %-8s %-8s %-8s %6s %s\n",
+     i, tag.st_value, tag.st_size, ST_TYPE(tag.st_info).c_str(), 
+     ST_BIND(tag.st_info).c_str(), ST_VISIBILITY(tag.st_info).c_str(), 
+     get_sym_index(tag.st_shndx).c_str(), string(name).c_str());
+  }
+}
+
+void disassembler (Section_header text, FILE* file, vector <Elf32_Sym> &symtab) {
 
   uint32_t addr = text.sh_addr;
 
@@ -27,18 +48,24 @@ void disassembler (Section_header text, FILE* file, vector <Elf32_Sym> &symtab, 
 
     cout << hex << setfill('0') << setw (8) << addr << ": " << dec;
 
-    bool have_tag = 0;
-    for (auto tag : symtab) {
-      if (tag.st_value == addr) {
-        char name[512];
-        fseek (file, addr_name + tag.st_name, SEEK_SET);
-        fscanf(file, "%s", name);
-        cout << setfill(' ') << setw (0) << "<" << name << ">  ";
-        have_tag = 1;  
+    int index_tag = -1;
+    for (int i = 0; i < symtab.size(); i++) {
+      if (symtab[i].st_value == addr) {
+        index_tag = i;
       }
     }
 
-    if (!have_tag) cout << "           ";
+
+    cout << setfill(' ') << setw (10);
+    if (index_tag != -1) {
+      
+      char name[512];
+      fseek (file, address_name + symtab[index_tag].st_name, SEEK_SET);
+      fscanf(file, "%s", name);
+      
+       cout << name << ' ';
+    }
+    else cout << ' ' << ' ';
 
     addr += 4;
 
@@ -97,10 +124,12 @@ void read_elf_file () {
 
   vector <Elf32_Sym> symtab;
 
+  address_name = section_headers[header.e_shstrndx].sh_offset;
+
   for (int i = 0; i < header.e_shnum; i++) {
 
     char name[512];
-    fseek (file, section_headers[header.e_shstrndx].sh_offset + section_headers[i].sh_name, SEEK_SET);
+    fseek (file, address_name + section_headers[i].sh_name, SEEK_SET);
     fscanf(file, "%s", name);
 
     auto eq = [] (char *s1, char *s2) {
@@ -115,8 +144,8 @@ void read_elf_file () {
   }
 
   read_tags(section_headers[symtab_index], file, symtab);
-  disassembler(section_headers[text_index], file, symtab, section_headers[header.e_shstrndx].sh_offset);
-
+  disassembler(section_headers[text_index], file, symtab);
+  write_symtab(symtab, file);
 
   fclose(file);
 }

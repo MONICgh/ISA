@@ -15,6 +15,8 @@ const uint32_t FUNCT7 = 7;
 const char* file_in_name = "test_elf";
 const char* file_out_name = "out.txt";
 
+uint32_t address_name = -1;
+
 typedef struct {
     unsigned char   e_ident[16];
     uint16_t        e_type;
@@ -88,6 +90,87 @@ map <int, string> reg = {
     {30, "t5    "},
     {31, "t6    "}
 };
+
+// Parse symtab
+
+#define ST_BIND(info)          (get_sym_bind((info) >> 4))
+#define ST_TYPE(info)          (get_sym_types((info) & 0xf))
+#define ST_VISIBILITY(o)       (get_sym_vis((o)&0x3))
+
+map <int, string> sym_bind = {
+    {0, "LOCAL"},
+    {1, "GLOBAL"},
+    {2, "WEAK"},
+    {10, "LOOS"},
+    {12, "HIOS"},
+    {13, "LOPROC"},
+    {15, "HIPROS"}
+};
+
+string get_sym_bind (int index) {
+    if (sym_bind.find(index) == sym_bind.end()) index = 0;
+    return sym_bind[index];
+}
+
+map <int, string> sym_types = {
+    {0, "NOTYPE"},
+    {1, "OBJECT"},
+    {2, "FUNC"},
+    {3, "SECTION"},
+    {4, "FILE"},
+    {5, "COMMON"},
+    {6, "TLS"},
+    {10, "LOOS"},
+    {12, "HIOS"},
+    {13, "LOPROC"},
+    {15, "HIPROS"}
+};
+
+string get_sym_types (int index) {
+    if (sym_types.find(index) == sym_types.end()) index = 0;
+    return sym_types[index];
+}
+
+map <int, string> sym_vis = {
+    {0, "DEFAULT"},
+    {1, "INTERNAL"},
+    {2, "HIDDEN"},
+    {3, "PROTECTED"},
+    {4, "EXPORTED"},
+    {5, "SINGLETON"},
+    {6, "ELIMINATE"}
+};
+
+string get_sym_vis (int index) {
+    if (sym_vis.find(index) == sym_vis.end()) index = 0;
+    return sym_vis[index];
+}
+
+map <int, string> sym_index = {
+    {0, "UNDEF"},
+    {0xff00, "LORESERVE"},
+    {0xff00, "LOPROC"},
+    {0xff00, "BEFORE"},
+    {0xff01, "AFTER"},
+    {0xff02, "AMD64_LCOMMON"},
+    {0xff1f, "HIPROC"},
+    {0xff20, "LOOS"},
+    {0xff3f, "LOSUNW"},
+    {0xff3f, "SUNW_IGNORE"},
+    {0xff3f, "HISUNW"},
+    {0xff3f, "HIOS"},
+    {0xfff1, "ABS"},
+    {0xfff2, "COMMON"},
+    {0xffff, "XINDEX"},
+    {0xffff, "HIRESERVE"}
+};
+
+string get_sym_index (int index) {
+    if (sym_index.find(index) != sym_index.end()) 
+        return sym_index[index];
+    return to_string(index);
+}
+
 
 struct R_type {
 
