@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <iomanip>
+#include <string>
 
 using namespace std;
 
@@ -31,6 +32,15 @@ typedef struct {
     uint16_t        e_shstrndx;
 } Elf32_Ehdr;
 
+typedef struct {
+    uint32_t        st_name;
+    uint32_t        st_value;
+    uint32_t        st_size;
+    unsigned char   st_info;
+    unsigned char   st_other;
+    uint16_t        st_shndx;
+} Elf32_Sym;
+
 typedef struct { 
     uint16_t        sh_name;
     uint32_t        sh_type;
@@ -43,6 +53,41 @@ typedef struct {
     uint32_t        sh_addralign;
     uint32_t        sh_entsize;
 } Section_header;
+
+map <int, string> reg = {
+    {0,  "zero  "},
+    {1,  "ra    "},
+    {2,  "sp    "},
+    {3,  "gp    "},
+    {4,  "tp    "},
+    {5,  "t0    "},
+    {6,  "t1    "},
+    {7,  "t2    "},
+    {8,  "s0    "},
+    {9,  "s1    "},
+    {10, "a0    "},
+    {11, "a1    "},
+    {12, "a2    "},
+    {13, "a3    "},
+    {14, "a4    "},
+    {15, "a5    "},
+    {16, "a6    "},
+    {17, "a7    "},
+    {18, "s2    "},
+    {19, "s3    "},
+    {20, "s4    "},
+    {21, "s5    "},
+    {22, "s6    "},
+    {23, "s7    "},
+    {24, "s8    "},
+    {25, "s9    "},
+    {26, "s10   "},
+    {27, "s11   "},
+    {28, "t3    "},
+    {29, "t4    "},
+    {30, "t5    "},
+    {31, "t6    "}
+};
 
 struct R_type {
 
@@ -84,7 +129,7 @@ struct R_type {
     }
 
     void print() {
-        cout << command[{funct7, funct3}] << rd << ", " << rs1 << ", " << rs2 <<'\n';
+        cout << command[{funct7, funct3}] << reg[rd] << ", " << reg[rs1] << ", " << reg[rs2] <<'\n';
     };
 };
 
@@ -120,7 +165,7 @@ struct I_type {
     }
 
     void print() {
-        cout << command[{opcode, funct3}] << rd << ", " << rs1 << ", " << cnst << '\n';
+        cout << command[{opcode, funct3}] << reg[rd] << ", " << reg[rs1] << ", " << cnst << '\n';
     };
 };
 
@@ -154,7 +199,7 @@ struct S_type {
     }
 
     void print() {
-        cout << command[{opcode, funct3}] << rs1 << ", " << rs2 << ", " << cnst << '\n';
+        cout << command[{opcode, funct3}] << reg[rs1] << ", " << reg[rs2] << ", " << cnst << '\n';
     };
 };
 
@@ -196,7 +241,7 @@ struct B_type {
     }
 
     void print() {
-        cout << command[{opcode, funct3}] << rs1 << ", " << rs2 << ", " << cnst << '\n';
+        cout << command[{opcode, funct3}] << reg[rs1] << ", " << reg[rs2] << ", " << cnst << '\n';
     };
 };
 
@@ -221,7 +266,7 @@ struct U_type {
     }
 
     void print() {
-        cout << command[{opcode}] << rd << ", " << cnst << '\n';
+        cout << command[{opcode}] << reg[rd] << ", " << cnst << '\n';
     };
 };
 
@@ -253,6 +298,6 @@ struct J_type {
     }
 
     void print() {
-        cout << command[{opcode}] << rd << ", " << cnst << '\n';
+        cout << command[{opcode}] << reg[rd] << ", " << cnst << '\n';
     };
 };
