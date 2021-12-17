@@ -38,11 +38,12 @@ void write_symtab (vector <Elf32_Sym> &symtab, FILE* file) {
   }
 }
 
-void disassembler (Section_header text, FILE* file, vector <Elf32_Sym> &symtab) {
+void disassembler (Section_header text, FILE* file,
+ vector <Elf32_Sym> &symtab, const char* fout_name) {
 
   uint32_t addr = text.sh_addr;
 
-  freopen (file_out_name, "w", stdout);
+  freopen (fout_name, "w", stdout);
 
   for (int i = 0; i < text.sh_size / 4; i++) {
 
@@ -102,9 +103,7 @@ void disassembler (Section_header text, FILE* file, vector <Elf32_Sym> &symtab) 
   }
 }
 
-void read_elf_file () {
-
-  FILE* file = fopen(file_in_name, "rb");
+void read_elf_file (FILE* file, const char* fout_name) {
   
   Elf32_Ehdr header;
   fread (&header, sizeof(header), 1, file);
@@ -144,15 +143,21 @@ void read_elf_file () {
   }
 
   read_tags(section_headers[symtab_index], file, symtab);
-  disassembler(section_headers[text_index], file, symtab);
+  disassembler(section_headers[text_index], file, symtab, fout_name);
   write_symtab(symtab, file);
 
-  fclose(file);
 }
 
-int main () {
+int main (int argc, char const* argv[]) {
 
-    read_elf_file ();
+    const char* fin_name = argv[1];
+    const char* fout_name = argv[2];
+
+    FILE* fin = fopen(fin_name, "rb");
+
+    read_elf_file (fin, fout_name);
+
+    fclose(fin);
 
     return 0;
 }

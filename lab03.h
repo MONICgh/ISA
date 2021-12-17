@@ -12,8 +12,8 @@ const uint32_t FUNCT3 = 3;
 const uint32_t RS = 5;
 const uint32_t FUNCT7 = 7;
 
-const char* file_in_name = "test_elf";
-const char* file_out_name = "out.txt";
+//const char* file_in_name = "test_elf";
+//const char* file_out_name = "out.txt";
 
 uint32_t address_name = -1;
 
