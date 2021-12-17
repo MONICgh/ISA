@@ -107,6 +107,10 @@ void read_elf_file (FILE* file, const char* fout_name) {
   
   Elf32_Ehdr header;
   fread (&header, sizeof(header), 1, file);
+  if (!(header.e_ident[1] == 'E' && header.e_ident[2] == 'L' && header.e_ident[3] == 'F')) {
+    cerr << "Error: Wrong format file\n";
+    exit(0);
+  }
 
   vector <Section_header> section_headers;
   fseek (file, header.e_shoff, SEEK_SET);
@@ -154,6 +158,11 @@ int main (int argc, char const* argv[]) {
     const char* fout_name = argv[2];
 
     FILE* fin = fopen(fin_name, "rb");
+
+    if (!fin) {
+      cerr << "Error: Could not open the file\n";
+      exit(0);
+    }
 
     read_elf_file (fin, fout_name);
 
