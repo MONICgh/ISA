@@ -12,9 +12,6 @@ const uint32_t FUNCT3 = 3;
 const uint32_t RS = 5;
 const uint32_t FUNCT7 = 7;
 
-//const char* file_in_name = "test_elf";
-//const char* file_out_name = "out.txt";
-
 uint32_t address_name = -1;
 
 typedef struct {
@@ -91,7 +88,6 @@ map <int, string> reg = {
     {31, "t6    "}
 };
 
-// Parse symtab
 
 #define ST_BIND(info)          (get_sym_bind((info) >> 4))
 #define ST_TYPE(info)          (get_sym_types((info) & 0xf))
